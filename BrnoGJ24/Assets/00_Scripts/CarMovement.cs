@@ -2,15 +2,15 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CarMovement : MonoBehaviour
+public class CarMovement : CarMovementBase
 {
-    Transform myTransform;
+    
 
     //[SerializeField] float maxSpeed = 150;
     [SerializeField] List<float> maxSpeeds;
     float currentMaxSpeed = 0;
 
-    public float currentSpeed = 0;
+
     [SerializeField] float speedChangePerSec = 5;
 
     [SerializeField] float sideSpeed = 2;
@@ -20,27 +20,25 @@ public class CarMovement : MonoBehaviour
     int currentGear = 1;
     float delta;
 
-
-    [SerializeField] int linesCount = 5;
     public int currentLine = 3;
 
-    readonly float lineSpacing = 2;
-
-    bool gameStarted = false;
-    bool isChangingLines = false;
-
-    private void Awake()
-    {
-        myTransform = gameObject.transform;
-
-        gameStarted = true;
-    }
-
     
+    //bool isChangingLines = false;
 
-    private void Update()
+   
+
+
+
+    protected override void Update()
     {
-        if (!gameStarted) return;
+        //if (!gameStarted) return;
+
+        base.Update();
+
+        if(currentSpeed < maxSpeed)
+        {
+            currentSpeed += speedChangePerSec * delta;
+        }
 
         delta = Time.deltaTime;
         
@@ -55,38 +53,39 @@ public class CarMovement : MonoBehaviour
             GearChange(false);
         }
 
-        if (Input.GetKey(KeyCode.RightArrow) && !isChangingLines && (currentLine < linesCount))
+        if (Input.GetKeyDown(KeyCode.RightArrow) && (currentLine < TrackData.Instance.LanesCount))
         {
-            ChangeLine(true);
+            LaneSwitch(true);
         }
 
-        else if (Input.GetKey(KeyCode.LeftArrow) && !isChangingLines && (currentLine > 1))
+        else if (Input.GetKeyDown(KeyCode.LeftArrow) && (currentLine > 1))
         {
-            ChangeLine(false);
+            LaneSwitch(false);
         }
 
-        MoveForward();
+        //MoveForward();
+        Move();
     }
 
 
 
     private void GearChange(bool up)
     {
-
+    
         if (up && (currentGear < maxGear))
         {
             currentGear++;
             
         }
             
-
+    
         else if(!up && (currentGear > 0))
         {
             currentGear--;
         }
-
-        UpdateMaxSpeed(currentGear);
-
+    
+        //UpdateMaxSpeed(currentGear);
+    
     }
 
     private void MoveForward()
@@ -99,43 +98,65 @@ public class CarMovement : MonoBehaviour
         myTransform.Translate(Vector3.forward * currentSpeed * delta);
     }
 
-    private void ChangeLine(bool right)
+    public override void LaneSwitch(bool right)
     {
-        StartCoroutine(ChangeLineCoroutine(right));
-    }
-    
-    IEnumerator ChangeLineCoroutine(bool right)
-    {
-        float _distanceChanged = 0;
-        isChangingLines = true;
+        int _laneSwitcher = 0;
 
-        Vector3 direction;
-        if (right == true)
-        {
-            currentLine++;
-            direction = Vector3.right;
-        }
-
+        if (right)
+            _laneSwitcher++;
         else
-        {
-            currentLine--;
-            direction = Vector3.left;
-        }
-            
+            _laneSwitcher--;
+
+        //aby neprapalil a soupl se max o jednu lajnu
+        if (Mathf.Abs((desiredLane + _laneSwitcher) - lane) > 1)
+            return;
+
+        desiredLane += _laneSwitcher;
+
         
-
-        while(_distanceChanged < lineSpacing)
-        {
-            float _movement = sideSpeed * delta;
-            _distanceChanged += _movement;
-            myTransform.Translate(direction * _movement);
-
-
-            yield return null;
-        }
-
-        isChangingLines = false;
+        
+        
+        //currentPosition = lane * TrackData.Instance.linesSpacing;
+        //finalPosition = currentPosition;
     }
+
+    //private void ChangeLine(bool right)
+    //{
+    //    StartCoroutine(ChangeLineCoroutine(right));
+    //}
+    //
+    //IEnumerator ChangeLineCoroutine(bool right)
+    //{
+    //    float _distanceChanged = 0;
+    //    isChangingLines = true;
+    //
+    //    Vector3 direction;
+    //    if (right == true)
+    //    {
+    //        currentLine++;
+    //        direction = Vector3.right;
+    //    }
+    //
+    //    else
+    //    {
+    //        currentLine--;
+    //        direction = Vector3.left;
+    //    }
+    //        
+    //    
+    //
+    //    while(_distanceChanged < TrackData.Instance.linesSpacing)
+    //    {
+    //        float _movement = sideSpeed * delta;
+    //        _distanceChanged += _movement;
+    //        myTransform.Translate(direction * _movement);
+    //
+    //
+    //        yield return null;
+    //    }
+    //
+    //    isChangingLines = false;
+    //}
 
     private void UpdateMaxSpeed(int gear)
     {
