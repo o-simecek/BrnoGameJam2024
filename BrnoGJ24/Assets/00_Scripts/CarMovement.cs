@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 
 public class CarMovement : MonoBehaviour
 {
@@ -8,7 +9,7 @@ public class CarMovement : MonoBehaviour
 
     //[SerializeField] float maxSpeed = 150;
     [SerializeField] List<float> maxSpeeds;
-    float currentMaxSpeed = 0;
+    float currentMaxSpeed = 150;
 
     public float currentSpeed = 0;
     [SerializeField] float speedChangePerSec = 5;
@@ -20,6 +21,10 @@ public class CarMovement : MonoBehaviour
     int currentGear = 1;
     float delta;
 
+    private float currentRPM = 0f;
+    private float maxRPM = 10000f;
+
+    private float acceleration = 5;
 
     [SerializeField] int linesCount = 5;
     public int currentLine = 3;
@@ -28,6 +33,11 @@ public class CarMovement : MonoBehaviour
 
     bool gameStarted = false;
     bool isChangingLines = false;
+
+    [SerializeField]
+    TextMeshProUGUI speedText;
+    [SerializeField]
+    TextMeshProUGUI RPMText;
 
     private void Awake()
     {
@@ -40,32 +50,38 @@ public class CarMovement : MonoBehaviour
 
     private void Update()
     {
-        if (!gameStarted) return;
-
-        delta = Time.deltaTime;
-        
-
-        if (Input.GetKey(KeyCode.UpArrow))
+        if (GameManager.Instance.isRaceInProgress)
         {
-            GearChange(true);
-        }
 
-        else if (Input.GetKey(KeyCode.DownArrow))
-        {
-            GearChange(false);
-        }
+            delta = Time.deltaTime;
 
-        if (Input.GetKey(KeyCode.RightArrow) && !isChangingLines && (currentLine < linesCount))
-        {
-            ChangeLine(true);
-        }
 
-        else if (Input.GetKey(KeyCode.LeftArrow) && !isChangingLines && (currentLine > 1))
-        {
-            ChangeLine(false);
-        }
+            if (Input.GetKey(KeyCode.UpArrow))
+            {
+                GearChange(true);
+            }
 
-        MoveForward();
+            else if (Input.GetKey(KeyCode.DownArrow))
+            {
+                GearChange(false);
+            }
+
+            if (Input.GetKey(KeyCode.RightArrow) && !isChangingLines && (currentLine < linesCount))
+            {
+                ChangeLine(true);
+            }
+
+            else if (Input.GetKey(KeyCode.LeftArrow) && !isChangingLines && (currentLine > 1))
+            {
+                ChangeLine(false);
+            }
+
+            currentSpeed += acceleration * delta;
+
+            MoveForward();
+
+        }
+        speedText.text = ((int) currentSpeed).ToString() + "km/h";
     }
 
 
@@ -85,7 +101,7 @@ public class CarMovement : MonoBehaviour
             currentGear--;
         }
 
-        UpdateMaxSpeed(currentGear);
+        //UpdateMaxSpeed(currentGear);
 
     }
 
