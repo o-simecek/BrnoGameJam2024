@@ -9,6 +9,8 @@ public class GameManager : MonoBehaviour
 
     public bool isRaceInProgress = false;
 
+    public float lineSpacing = 2;
+
     public enum GameState
     {
         Menu,

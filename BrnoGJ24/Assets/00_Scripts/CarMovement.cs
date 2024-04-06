@@ -7,32 +7,36 @@ using UnityEngine.Rendering;
 
 public class CarMovement : MonoBehaviour
 {
-    Transform myTransform;
-
-    //[SerializeField] float maxSpeed = 150;
-    [SerializeField] List<float> maxSpeeds;
-    float maxSpeed = 150;
-
-    public float currentSpeed = 0;
-    [SerializeField] float speedChangePerSec = 5;
-
-    [SerializeField] int maxGear = 5;
-    int currentGear = 0;
+    //Car states
     bool carStarted = false;
 
+    //Speed
+    float maxSpeed = 150;
+    public float currentSpeed = 0;
+
+    //Gears
+    [SerializeField] int maxGear = 5;
+    int currentGear = 0;
+    bool carCrashed = false;
+
+    //RPM
     private float currentRPM = 0f;
     private static float maxRPM = 10000f;
+    [SerializeField]
     private static float baseRPMChange = 500f;
 
+    //Acceleration
+    [SerializeField]
     private static float baseAcceleration = 4;
     private float acceleration = 0;
 
     //Line changing
     [SerializeField] int linesCount = 5;
     public int currentLine = 3;
-    readonly float lineSpacing = 2;
     bool isChangingLines = false;
     [SerializeField] float sideSpeed = 2;
+
+    RaycastHit m_Hit;
 
     [SerializeField]
     TextMeshProUGUI speedText;
@@ -41,12 +45,14 @@ public class CarMovement : MonoBehaviour
 
     private void Awake()
     {
-        myTransform = gameObject.transform;
+
     }
     
 
     private void Update()
     {
+        if (carCrashed) return;
+
         RPMText.text = "RPM: " + ((int)currentRPM).ToString();
         CalculateAcceleration();
 
@@ -57,15 +63,15 @@ public class CarMovement : MonoBehaviour
 
                 if (Input.GetKey(KeyCode.UpArrow))
                 {
-                    currentRPM = Mathf.Min(currentRPM + 4000 * Time.deltaTime, maxRPM);
+                    currentRPM = Mathf.Min(currentRPM + 4500 * Time.deltaTime, maxRPM);
                 }
                 else if (Input.GetKey(KeyCode.DownArrow))
                 {
-                    currentRPM = Mathf.Max(currentRPM - 4000 * Time.deltaTime, 0);
+                    currentRPM = Mathf.Max(currentRPM - 4500 * Time.deltaTime, 0);
                 }
                 else
                 {
-                    currentRPM = Mathf.Max(currentRPM - 1000 * Time.deltaTime, 0);
+                    currentRPM = Mathf.Max(currentRPM - 2000 * Time.deltaTime, 0);
                 }
 
                 break;
@@ -84,12 +90,12 @@ public class CarMovement : MonoBehaviour
                     GearChange(false);
                 }
 
-                if (Input.GetKeyDown(KeyCode.RightArrow) && !isChangingLines && (currentLine < linesCount))
+                if (Input.GetKeyDown(KeyCode.RightArrow) && !isChangingLines && (currentLine < linesCount) && IsLineClear(1))
                 {
                     ChangeLine(true);
                 }
 
-                else if (Input.GetKeyDown(KeyCode.LeftArrow) && !isChangingLines && (currentLine > 1))
+                else if (Input.GetKeyDown(KeyCode.LeftArrow) && !isChangingLines && (currentLine > 1) && IsLineClear(-1))
                 {
                     ChangeLine(false);
                 }
@@ -106,6 +112,19 @@ public class CarMovement : MonoBehaviour
     }
 
 
+    private void OnCollisionEnter(Collision other)
+    {
+        if (other.gameObject.tag == "Wall")
+        {
+            GetComponent<Rigidbody>().AddForce(0, 0, -currentSpeed);
+            currentSpeed = 0;
+            carCrashed = true;
+            UnityEngine.Debug.Log("Car crashed!");
+        }
+    }
+
+
+
     private void GearChange(bool up)
     {
         if ((up && (currentGear < maxGear) && (currentRPM > 5000)) || (currentGear == 0))
@@ -115,9 +134,16 @@ public class CarMovement : MonoBehaviour
                 currentSpeed += CalculateBonusSpeed();
             }
 
+            if (currentGear == 0 && currentRPM > 9000)
+            {
+                currentRPM = 1000;
+                UnityEngine.Debug.Log("Bad start!");
+            }
+
             currentGear++;
             float newRPM = Mathf.Max(1000, currentRPM - (maxGear + 1 - currentGear) * 1000);
             currentRPM = newRPM;
+
 
             UnityEngine.Debug.Log("Gear: " + currentGear.ToString() + "; " + "RPM change: " + (currentRPM - newRPM).ToString());
         }
@@ -135,7 +161,7 @@ public class CarMovement : MonoBehaviour
         else if (currentSpeed < 0)
             currentSpeed = 0;
 
-        myTransform.Translate(Vector3.forward * currentSpeed * Time.deltaTime);
+        transform.Translate(Vector3.forward * currentSpeed * Time.deltaTime);
     }
 
     private void ChangeLine(bool right)
@@ -162,11 +188,11 @@ public class CarMovement : MonoBehaviour
         }
         
 
-        while(_distanceChanged < lineSpacing)
+        while(_distanceChanged < GameManager.Instance.lineSpacing)
         {
             float _movement = sideSpeed * Time.deltaTime;
             _distanceChanged += _movement;
-            myTransform.Translate(direction * _movement);
+            transform.Translate(direction * _movement);
 
 
             yield return null;
@@ -234,5 +260,19 @@ public class CarMovement : MonoBehaviour
             UnityEngine.Debug.Log("ok");
             return bonus[3];
         }
+    }
+
+    //-1 for left, +1 for right
+    private bool IsLineClear(int lineDirection) {
+        Collider[] hitDetected = Physics.OverlapBox(transform.position + Vector3.right * GameManager.Instance.lineSpacing * lineDirection, new Vector3(1, 0.5f, 0.75f));
+        foreach (Collider col in hitDetected) {
+
+            if (col.gameObject.tag == "Car")
+            {
+                UnityEngine.Debug.Log("Collision detected in line!");
+                return false;
+            }
+        }
+        return true;
     }
 }
