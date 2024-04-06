@@ -1541,6 +1541,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isRaceInProgress: 0
+  gameState: 1
 --- !u!4 &1950553261
 Transform:
   m_ObjectHideFlags: 0
