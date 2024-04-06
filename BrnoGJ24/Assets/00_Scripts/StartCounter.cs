@@ -28,7 +28,7 @@ public class StartCounter : MonoBehaviour
         if (timer < 0)
         {
             textObject.text = "Go!";
-            GameManager.Instance.isRaceInProgress = true;
+            GameManager.Instance.gameState = GameManager.GameState.Race;
         }
         else if (timer < 1)
         {

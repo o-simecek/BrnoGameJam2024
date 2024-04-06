@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using System.Diagnostics;
 
 public class CarMovement : MonoBehaviour
 {
@@ -16,22 +17,20 @@ public class CarMovement : MonoBehaviour
 
     [SerializeField] float sideSpeed = 2;
 
-    // gears 0 az maxGEar
     [SerializeField] int maxGear = 5;
-    int currentGear = 1;
-    float delta;
+    int currentGear = 0;
+    bool carStarted = false;
 
     private float currentRPM = 0f;
-    private float maxRPM = 10000f;
+    private static float maxRPM = 10000f;
+
 
     private float acceleration = 5;
 
+    //Line changing
     [SerializeField] int linesCount = 5;
     public int currentLine = 3;
-
     readonly float lineSpacing = 2;
-
-    bool gameStarted = false;
     bool isChangingLines = false;
 
     [SerializeField]
@@ -42,67 +41,80 @@ public class CarMovement : MonoBehaviour
     private void Awake()
     {
         myTransform = gameObject.transform;
-
-        gameStarted = true;
     }
-
     
 
     private void Update()
     {
-        if (GameManager.Instance.isRaceInProgress)
+        RPMText.text = "RPM: " + ((int)currentRPM).ToString(); 
+
+        switch (GameManager.Instance.gameState)
         {
+            //RACE IS STARTING
+            case GameManager.GameState.BeforeRace:
 
-            delta = Time.deltaTime;
+                if (Input.GetKey(KeyCode.UpArrow))
+                {
+                    currentRPM = Mathf.Min(currentRPM + 3000 * Time.deltaTime, maxRPM);
+                }
 
+                else if (Input.GetKey(KeyCode.DownArrow))
+                {
+                    currentRPM = Mathf.Max(currentRPM - 3000 * Time.deltaTime, 0);
+                }
 
-            if (Input.GetKey(KeyCode.UpArrow))
-            {
-                GearChange(true);
-            }
+                break;
 
-            else if (Input.GetKey(KeyCode.DownArrow))
-            {
-                GearChange(false);
-            }
+            //RACE IS IN PROGRESS
+            case GameManager.GameState.Race:
+                currentRPM = Mathf.Min(maxRPM, currentRPM + 1000 * Time.deltaTime);
 
-            if (Input.GetKey(KeyCode.RightArrow) && !isChangingLines && (currentLine < linesCount))
-            {
-                ChangeLine(true);
-            }
+                if (Input.GetKeyDown(KeyCode.UpArrow))
+                {
+                    GearChange(true);
+                }
 
-            else if (Input.GetKey(KeyCode.LeftArrow) && !isChangingLines && (currentLine > 1))
-            {
-                ChangeLine(false);
-            }
+                else if (Input.GetKeyDown(KeyCode.DownArrow))
+                {
+                    GearChange(false);
+                }
 
-            currentSpeed += acceleration * delta;
+                if (Input.GetKeyDown(KeyCode.RightArrow) && !isChangingLines && (currentLine < linesCount))
+                {
+                    ChangeLine(true);
+                }
 
-            MoveForward();
+                else if (Input.GetKeyDown(KeyCode.LeftArrow) && !isChangingLines && (currentLine > 1))
+                {
+                    ChangeLine(false);
+                }
 
+                currentSpeed += acceleration * Time.deltaTime;
+
+                MoveForward();
+
+                speedText.text = ((int)currentSpeed).ToString() + "km/h";
+                break;
         }
-        speedText.text = ((int) currentSpeed).ToString() + "km/h";
-    }
 
+        HandleFirstGearChange();
+    }
 
 
     private void GearChange(bool up)
     {
-
-        if (up && (currentGear < maxGear))
+        if ((up && (currentGear < maxGear) && (currentRPM > 5000)) || (currentGear == 0))
         {
             currentGear++;
-            
+            float newRPM = Mathf.Max(1000, currentRPM - (maxGear + 1 - currentGear) * 1000);
+            UnityEngine.Debug.Log("Gear: " + currentGear.ToString() + "; " + "RPM change: " + (currentRPM - newRPM).ToString());
+            currentRPM = newRPM;
         }
-            
 
         else if(!up && (currentGear > 0))
         {
             currentGear--;
         }
-
-        //UpdateMaxSpeed(currentGear);
-
     }
 
     private void MoveForward()
@@ -112,7 +124,7 @@ public class CarMovement : MonoBehaviour
         else if (currentSpeed < 0)
             currentSpeed = 0;
 
-        myTransform.Translate(Vector3.forward * currentSpeed * delta);
+        myTransform.Translate(Vector3.forward * currentSpeed * Time.deltaTime);
     }
 
     private void ChangeLine(bool right)
@@ -137,12 +149,11 @@ public class CarMovement : MonoBehaviour
             currentLine--;
             direction = Vector3.left;
         }
-            
         
 
         while(_distanceChanged < lineSpacing)
         {
-            float _movement = sideSpeed * delta;
+            float _movement = sideSpeed * Time.deltaTime;
             _distanceChanged += _movement;
             myTransform.Translate(direction * _movement);
 
@@ -153,9 +164,15 @@ public class CarMovement : MonoBehaviour
         isChangingLines = false;
     }
 
-    private void UpdateMaxSpeed(int gear)
+    private void HandleFirstGearChange()
     {
-        currentMaxSpeed = maxSpeeds[gear];
-    }
-        
+        if (!carStarted)
+        {
+            if (GameManager.Instance.gameState == GameManager.GameState.Race)
+            {
+                GearChange(true);
+                carStarted = true;
+            }
+        }
+    }   
 }

@@ -8,6 +8,16 @@ public class GameManager : MonoBehaviour
     private static GameManager _instance;
 
     public bool isRaceInProgress = false;
+
+    public enum GameState
+    {
+        Menu,
+        BeforeRace,
+        Race,
+        AfterRace
+    }
+
+    public GameState gameState = GameState.BeforeRace;
     public static GameManager Instance { get { 
             return _instance; } }
     // Start is called before the first frame update
