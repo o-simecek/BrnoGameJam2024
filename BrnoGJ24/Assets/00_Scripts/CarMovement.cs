@@ -45,7 +45,6 @@ public class CarMovement : CarMovementBase
     }
 
 
-    public int currentLine = 3;
 
     
     //bool isChangingLines = false;
@@ -73,15 +72,7 @@ public class CarMovement : CarMovementBase
                 GearChange(false);
             }
 
-            if (Input.GetKey(KeyCode.RightArrow) && !isChangingLines && (currentLine < linesCount))
-            {
-                ChangeLine(true);
-            }
 
-            else if (Input.GetKey(KeyCode.LeftArrow) && !isChangingLines && (currentLine > 1))
-            {
-                ChangeLine(false);
-            }
 
             currentSpeed += acceleration * delta;
 
