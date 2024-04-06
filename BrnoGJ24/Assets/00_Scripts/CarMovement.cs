@@ -5,8 +5,6 @@ using UnityEngine;
 public class CarMovement : CarMovementBase
 {
     
-
-    //[SerializeField] float maxSpeed = 150;
     [SerializeField] List<float> maxSpeeds;
     float currentMaxSpeed = 0;
 
@@ -115,10 +113,9 @@ public class CarMovement : CarMovementBase
 
         
         
-        
-        //currentPosition = lane * TrackData.Instance.linesSpacing;
-        //finalPosition = currentPosition;
     }
+
+    //TAHLE ODPOZNAMKOVANA COROUTINE JE PEKNA A KLIDNE BYCH JI POUZIL, ADAM CHCE ALE SMOOTHSTEP:)
 
     //private void ChangeLine(bool right)
     //{

@@ -6,10 +6,13 @@ public class TrackData : MonoBehaviour
 {
     public static TrackData Instance { get; private set; }
 
-    public int LanesCount { get; private set; } = 5;
-    public float LanesSpacing { get; private set; } = 3;
+    public int LanesCount { get; private set; }
+    public float LanesSpacing { get; private set; }
     private void Awake()
     {
         Instance = this;
+
+        LanesCount = 5;
+        LanesSpacing = 2;
     }
 }

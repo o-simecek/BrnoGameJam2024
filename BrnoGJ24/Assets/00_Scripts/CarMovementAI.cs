@@ -9,19 +9,15 @@ public class CarMovementAI : CarMovementBase
     public bool leftCheck = false;
     public bool rightCheck = false;
 
-
-    // Update is called once per frame
     protected override void Update()
     {
         base.Update();
 
         if (currentSpeed > 0)
         {
+            //Adame, wtf je tenhle vypocet rychlosti?:D
             currentSpeed += maxSpeed / currentSpeed / 1000;
 
-            //transform.Translate(0,0,currentSpeed * Time.deltaTime);
-            //transform.position = new Vector3(transform.position.x, transform.position.y, currentPositionX);
-            //currentPositionX = Mathf.SmoothStep(currentPositionX, finalPositionX, 30f * Time.deltaTime);
             if (Mathf.Abs(currentPositionX) > Mathf.Abs(finalPositionX) - 0.1)
             {
                 switchLock = false;
@@ -49,14 +45,7 @@ public class CarMovementAI : CarMovementBase
                 _laneSwitcher = 1;
             else
                 _laneSwitcher = -1;
-            //if (Random.Range(0, 1) == 0)
-            //{
-            //    laneSwitcher = 1;
-            //}
-            //else
-            //{
-            //    laneSwitcher = -1;
-            //}
+
 
             if (rightCheck)
             {
