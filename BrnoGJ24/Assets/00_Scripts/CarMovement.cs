@@ -165,9 +165,20 @@ public class CarMovement : MonoBehaviour
             transform.Translate(new Vector3(0, 0, (transform.position.z - other.gameObject.transform.position.z) * 0.5f));
             //GetComponent<Rigidbody>().AddForce((other.gameObject.transform.position - transform.position) * 100);
         } else if (other.gameObject.tag == "Finish"){
+            if (GameManager.Instance.whowon == GameManager.WhoWon.nobody)
+            {
                 GameManager.Instance.whowon = GameManager.WhoWon.player;
                 Debug.Log("Player won!");
                 GameManager.Instance.gameState = GameManager.GameState.AfterRace;
+                GameManager.Instance.clearedLevels.Add(SceneManager.GetActiveScene().name);
+                StartCoroutine(GameManager.Instance.LoadLevelSelect());
+            }
+            else if (GameManager.Instance.whowon == GameManager.WhoWon.opponent)
+            {
+                Debug.Log("Player lost!");
+                StartCoroutine(GameManager.Instance.LoadLevelSelect());
+
+            }
         }
     }
 

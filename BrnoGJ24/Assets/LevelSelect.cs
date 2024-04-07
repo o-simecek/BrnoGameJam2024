@@ -61,4 +61,9 @@ public class LevelSelect : MonoBehaviour
         GameManager.Instance.gameState = GameManager.GameState.BeforeRace;
         SceneManager.LoadScene("Race4");
     }
+
+    public void OnBack()
+    {
+        SceneManager.LoadScene("Menu");
+    }
 }

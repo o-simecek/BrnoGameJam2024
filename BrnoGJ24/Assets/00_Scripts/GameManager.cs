@@ -15,6 +15,8 @@ public class GameManager : MonoBehaviour
 
     public float finishZ = 681.7f;
 
+    public int[] carHash = new int[8] {0, 0, 0, 0, 0, 0, 0, 0};
+
     public enum GameState
     {
         Menu,
@@ -40,20 +42,47 @@ public class GameManager : MonoBehaviour
     // Start is called before the first frame update
     void Awake()
     {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(this);
+            return;
+        }
+
         _instance = this;
+        DontDestroyOnLoad(this.gameObject);
     }
 
 
     // Update is called once per frame
     void Update()
     {
-
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            OnQuit();
+        }
     }
 
     public IEnumerator LoadLevelSelect()
     {
         yield return new WaitForSeconds(2);
+        OnLevelSelect();
+    }
+
+    public void OnLevelSelect()
+    {
         gameState = GameState.Menu;
+        whowon = WhoWon.nobody;
         SceneManager.LoadScene("LevelSelect");
     }
+
+    public void OnQuit()
+    {
+        Application.Quit();
+    }
+
+    public void onSaveCar()
+    {
+        carHash = FindObjectOfType<OpponentGenerator>().carHash;
+    }
+
 }
