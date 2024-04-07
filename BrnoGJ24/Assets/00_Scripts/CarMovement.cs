@@ -58,6 +58,8 @@ public class CarMovement : MonoBehaviour
     [SerializeField] Transform visualTransform;
     [SerializeField]
     TextMeshProUGUI shiftText;
+    [SerializeField]
+    TextMeshProUGUI wonText;
 
     private void Awake()
     {
@@ -144,6 +146,14 @@ public class CarMovement : MonoBehaviour
 
                 speedText.text = ((int)currentSpeed).ToString() + "km/h";
                 break;
+        }
+        if (GameManager.Instance.whowon == GameManager.WhoWon.player)
+        {
+            wonText.text = "You have won!";
+        }
+        if (GameManager.Instance.whowon == GameManager.WhoWon.opponent)
+        {
+            wonText.text = "You have lost!";
         }
 
         HandleFirstGearChange();
@@ -362,12 +372,14 @@ public class CarMovement : MonoBehaviour
             {
                 GameManager.Instance.whowon = GameManager.WhoWon.player;
                 Debug.Log("Player won!");
+                wonText.text = "You have won!";
                 GameManager.Instance.gameState = GameManager.GameState.AfterRace;
                 GameManager.Instance.clearedLevels.Add(SceneManager.GetActiveScene().name);
                 StartCoroutine(GameManager.Instance.LoadLevelSelect());
             } else if (GameManager.Instance.whowon == GameManager.WhoWon.opponent)
             {
                 Debug.Log("Player lost!");
+                wonText.text = "You have lost!";
                 StartCoroutine(GameManager.Instance.LoadLevelSelect());
 
             }

@@ -39,10 +39,15 @@ public class OpponentGenerator : MonoBehaviour
 
         partArray = new GameObject[][]{spoilers, frontBumpers, hoods, rearBumpers, skirts, exhausts, rims};
 
-        if(isEnemy){
+
+
+
+            if (isEnemy){
             Randomize();
 
         } else{
+            carHash = GameManager.Instance.carHash;
+
             Activation();
         }
 

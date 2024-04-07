@@ -4,6 +4,7 @@ using UnityEditor.SearchService;
 using UnityEditorInternal;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using TMPro;
 
 public class GameManager : MonoBehaviour
 {
@@ -84,5 +85,7 @@ public class GameManager : MonoBehaviour
     {
         carHash = FindObjectOfType<OpponentGenerator>().carHash;
     }
+
+
 
 }
