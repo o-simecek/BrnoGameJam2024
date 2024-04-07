@@ -1,7 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.SearchService;
 using UnityEditorInternal;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
@@ -31,6 +33,8 @@ public class GameManager : MonoBehaviour
     public WhoWon whowon = WhoWon.nobody;
 
     public GameState gameState = GameState.BeforeRace;
+
+    public List<string> clearedLevels = new List<string> {};
     public static GameManager Instance { get { 
             return _instance; } }
     // Start is called before the first frame update
@@ -44,5 +48,12 @@ public class GameManager : MonoBehaviour
     void Update()
     {
 
+    }
+
+    public IEnumerator LoadLevelSelect()
+    {
+        yield return new WaitForSeconds(2);
+        gameState = GameState.Menu;
+        SceneManager.LoadScene("LevelSelect");
     }
 }

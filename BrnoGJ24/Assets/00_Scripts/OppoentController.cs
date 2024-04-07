@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO.Pipes;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
 
 public class OppoentController : MonoBehaviour
@@ -260,6 +261,7 @@ public class OppoentController : MonoBehaviour
                 GameManager.Instance.whowon = GameManager.WhoWon.opponent;
                 Debug.Log("Player lost!");
                 GameManager.Instance.gameState = GameManager.GameState.AfterRace;
+                SceneManager.LoadScene("LevelSelect");
             }
         }
     }
