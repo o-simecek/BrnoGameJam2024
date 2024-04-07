@@ -5,6 +5,9 @@ using TMPro;
 using System.Diagnostics;
 using UnityEngine.Rendering;
 using Debug = UnityEngine.Debug;
+using UnityEngine.SceneManagement;
+using static UnityEditor.Progress;
+using System;
 
 public class CarMovement : MonoBehaviour
 {
@@ -151,6 +154,7 @@ public class CarMovement : MonoBehaviour
     {
         if (other.gameObject.tag == "Wall")
         {
+            shiftText.text = "Crashed!";
             GetComponent<Rigidbody>().AddForce(0, 0, -currentSpeed);
             currentSpeed = 0;
             carCrashed = true;
@@ -348,6 +352,13 @@ public class CarMovement : MonoBehaviour
                 GameManager.Instance.whowon = GameManager.WhoWon.player;
                 Debug.Log("Player won!");
                 GameManager.Instance.gameState = GameManager.GameState.AfterRace;
+                GameManager.Instance.clearedLevels.Add(SceneManager.GetActiveScene().name);
+                StartCoroutine(GameManager.Instance.LoadLevelSelect());
+            } else if (GameManager.Instance.whowon == GameManager.WhoWon.opponent)
+            {
+                Debug.Log("Player lost!");
+                StartCoroutine(GameManager.Instance.LoadLevelSelect());
+
             }
         }
     }
