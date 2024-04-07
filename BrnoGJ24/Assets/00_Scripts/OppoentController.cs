@@ -92,7 +92,7 @@ public class OppoentController : MonoBehaviour
             ChangeGear();
             MoveForward();
 
-            CheckFinish();
+            //CheckFinish();
                 
             }
         
@@ -126,6 +126,11 @@ public class OppoentController : MonoBehaviour
             Debug.Log("Collision with other car!");
             //GetComponent<Rigidbody>().AddForce(other.gameObject.transform.position - transform.position);
             transform.Translate(new Vector3(0, 0, (transform.position.z - other.gameObject.transform.position.z) * 0.5f));
+        }
+        else if (other.gameObject.tag == "Finish"){
+                GameManager.Instance.whowon = GameManager.WhoWon.opponent;
+                Debug.Log("Player lost!");
+                GameManager.Instance.gameState = GameManager.GameState.AfterRace;
         }
     }
 

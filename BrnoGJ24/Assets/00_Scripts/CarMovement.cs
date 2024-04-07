@@ -35,6 +35,8 @@ public class CarMovement : MonoBehaviour
     [SerializeField]
     private static float baseAcceleration = 4;
     private float acceleration = 0;
+    
+    public OpponentGenerator carModel;
 
     //Line changing
     [SerializeField] int linesCount = 4;
@@ -110,7 +112,7 @@ public class CarMovement : MonoBehaviour
             case GameManager.GameState.Race:
                 
                 UpdateRPM();
-                CheckFinish();
+                //CheckFinish();
 
                 if (Input.GetKeyDown(KeyCode.UpArrow))
                 {
@@ -153,11 +155,15 @@ public class CarMovement : MonoBehaviour
             currentSpeed = 0;
             carCrashed = true;
             UnityEngine.Debug.Log("Car crashed!");
-            //TODO carModel explode
+            carModel.Explode();
         } else if (other.gameObject.tag == "Car") {
             Debug.Log("Collision with other car!");
             transform.Translate(new Vector3(0, 0, (transform.position.z - other.gameObject.transform.position.z) * 0.5f));
             //GetComponent<Rigidbody>().AddForce((other.gameObject.transform.position - transform.position) * 100);
+        } else if (other.gameObject.tag == "Finish"){
+                GameManager.Instance.whowon = GameManager.WhoWon.player;
+                Debug.Log("Player won!");
+                GameManager.Instance.gameState = GameManager.GameState.AfterRace;
         }
     }
 

@@ -40,7 +40,7 @@ MonoBehaviour:
   active: 1
   shadows:
     m_OverrideState: 1
-    m_Value: {x: 0.6247681, y: 0.7030062, z: 1, w: 0.061782956}
+    m_Value: {x: 1, y: 0.9229024, z: 0.91923267, w: 0.061782956}
   midtones:
     m_OverrideState: 1
     m_Value: {x: 1, y: 1, z: 1, w: 0.39982343}
@@ -77,7 +77,7 @@ MonoBehaviour:
     m_Value: 0.65
   intensity:
     m_OverrideState: 1
-    m_Value: 0.75
+    m_Value: 0.1
   scatter:
     m_OverrideState: 1
     m_Value: 0.7
@@ -151,7 +151,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d7fd9488000d3734a9e00ee676215985, type: 3}
-  m_Name: Global Volume Profile
+  m_Name: Brno_Dusk
   m_EditorClassIdentifier: 
   components:
   - {fileID: -4870308285488256287}
@@ -210,7 +210,7 @@ MonoBehaviour:
     m_Value: 0
   colorFilter:
     m_OverrideState: 1
-    m_Value: {r: 0.8820755, g: 0.9144936, b: 1, a: 1}
+    m_Value: {r: 1, g: 0.9198113, b: 0.9198113, a: 1}
   hueShift:
     m_OverrideState: 0
     m_Value: 0

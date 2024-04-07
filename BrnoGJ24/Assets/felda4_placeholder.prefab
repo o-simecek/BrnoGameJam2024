@@ -6206,7 +6206,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0402eb56b32f4e2449095ebbcefdfd4e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  explosionForce: 1
+  explosionForce: 0.001
   frontBumpers:
   - {fileID: 6945228871782946530}
   - {fileID: 1293866878266479001}

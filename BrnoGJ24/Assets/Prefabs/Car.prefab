@@ -209,6 +209,7 @@ MonoBehaviour:
   rpmGauge: {fileID: 0}
   speedGauge: {fileID: 0}
   currentRPM: 0
+  carModel: {fileID: 444438049415217361}
   linesCount: 4
   currentLine: 3
   sideSpeed: 2
@@ -342,3 +343,15 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 2012320367409700123}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &444438049415217361 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2145900057012133322, guid: 8bffcd5383a32434fb43c726132ccdb4,
+    type: 3}
+  m_PrefabInstance: {fileID: 2012320367409700123}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0402eb56b32f4e2449095ebbcefdfd4e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

@@ -132,7 +132,8 @@ public class OpponentGenerator : MonoBehaviour
             foreach (GameObject child in gib)
             {
                 child.AddComponent(typeof(BoxCollider));
-                child.AddComponent(typeof(Rigidbody));
+                Rigidbody rb = child.AddComponent<Rigidbody>();
+                rb.mass = 1;
                 child.transform.GetComponent<Rigidbody>()?.AddForce(Random.insideUnitSphere.normalized*explosionForce, ForceMode.Impulse);
             }
 
@@ -140,13 +141,15 @@ public class OpponentGenerator : MonoBehaviour
         foreach (GameObject child in paintableParts)
         {
             child.AddComponent(typeof(BoxCollider));
-            child.AddComponent(typeof(Rigidbody));
+            Rigidbody rb = child.AddComponent<Rigidbody>();
+            rb.mass = 1;
             child.transform.GetComponent<Rigidbody>()?.AddForce(Random.insideUnitSphere.normalized*explosionForce, ForceMode.Impulse);
         }
         foreach (GameObject child in outlierParts)
         {
             child.AddComponent(typeof(BoxCollider));
-            child.AddComponent(typeof(Rigidbody));
+            Rigidbody rb = child.AddComponent<Rigidbody>();
+            rb.mass = 1;
             child.transform.GetComponent<Rigidbody>()?.AddForce(Random.insideUnitSphere.normalized*explosionForce, ForceMode.Impulse);
         }
 

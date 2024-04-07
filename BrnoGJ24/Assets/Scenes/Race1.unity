@@ -2753,7 +2753,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh33892
+  m_Name: pb_Mesh118442
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2
@@ -19890,7 +19890,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh250122
+  m_Name: pb_Mesh118468
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2
@@ -21501,6 +21501,7 @@ GameObject:
   - component: {fileID: 7582194150249264068}
   - component: {fileID: 1149208909123038016}
   - component: {fileID: 9032745114571340186}
+  - component: {fileID: 9032745114571340187}
   m_Layer: 0
   m_Name: domy vlevo
   m_TagString: Untagged
@@ -21880,6 +21881,7 @@ GameObject:
   - component: {fileID: 9186003365915041034}
   - component: {fileID: 5698177925023647129}
   - component: {fileID: 9186003365915041035}
+  - component: {fileID: 9186003365915041036}
   m_Layer: 0
   m_Name: domy vpravo
   m_TagString: Untagged
@@ -38562,6 +38564,20 @@ MonoBehaviour:
   m_SelectedFaces: 
   m_SelectedEdges: []
   m_SelectedVertices: 
+--- !u!64 &9032745114571340187
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1327742596449511599}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 4
+  m_Convex: 0
+  m_CookingOptions: 30
+  m_Mesh: {fileID: 1111352805}
 --- !u!33 &9133280687935487081
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -59353,6 +59369,20 @@ MonoBehaviour:
   m_SelectedFaces: 
   m_SelectedEdges: []
   m_SelectedVertices: 
+--- !u!64 &9186003365915041036
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2337788650919819579}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 4
+  m_Convex: 0
+  m_CookingOptions: 30
+  m_Mesh: {fileID: 1662052246}
 --- !u!33 &9186003365978831843
 MeshFilter:
   m_ObjectHideFlags: 0
