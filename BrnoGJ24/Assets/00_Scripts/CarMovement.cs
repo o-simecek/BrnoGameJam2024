@@ -19,8 +19,13 @@ public class CarMovement : MonoBehaviour
     int currentGear = 0;
     bool carCrashed = false;
 
+    public Transform rpmGauge;
+    public Transform speedGauge;
+
     //RPM
-    private float currentRPM = 0f;
+    public float currentRPM = 0f;
+    private float tmp = 0f;
+    private float lastVelocity = 0f;
     private static float maxRPM = 10000f;
     [SerializeField]
     private static float baseRPMChange = 500f;
@@ -31,7 +36,7 @@ public class CarMovement : MonoBehaviour
     private float acceleration = 0;
 
     //Line changing
-    [SerializeField] int linesCount = 5;
+    [SerializeField] int linesCount = 4;
     public int currentLine = 3;
     bool isChangingLines = false;
     [SerializeField] float sideSpeed = 2;
@@ -42,18 +47,38 @@ public class CarMovement : MonoBehaviour
     TextMeshProUGUI speedText;
     [SerializeField]
     TextMeshProUGUI RPMText;
+    [SerializeField] Transform visualTransform;
 
     private void Awake()
     {
 
     }
-    
 
+    private void LateUpdate(){
+        float xVelocity = tmp - transform.position.x;
+
+        
+
+        lastVelocity = Mathf.Lerp(lastVelocity, xVelocity, 15f * Time.deltaTime);
+        visualTransform.rotation = Quaternion.Euler(0, lastVelocity * -150, 0);
+
+    }
+    
     private void Update()
     {
+
+        rpmGauge.rotation = Quaternion.Euler(0, 0, 140 - (currentRPM/36));
+
+        if (currentSpeed > 20){
+            
+            speedGauge.rotation = Quaternion.Euler(0, 0, 140 - ((currentSpeed - 20) * 280/180));
+        }
+
+        tmp = transform.position.x;
+
         if (carCrashed) return;
 
-        RPMText.text = "RPM: " + ((int)currentRPM).ToString();
+        RPMText.text = "RPM: " + ((int)(currentRPM*0.7f)).ToString();
         CalculateAcceleration();
 
         switch (GameManager.Instance.gameState)
@@ -190,7 +215,8 @@ public class CarMovement : MonoBehaviour
 
         while(_distanceChanged < GameManager.Instance.lineSpacing)
         {
-            float _movement = sideSpeed * Time.deltaTime;
+            float _movement =  (currentSpeed/5f) * sideSpeed * Time.deltaTime;
+
             _distanceChanged += _movement;
             transform.Translate(direction * _movement);
 
@@ -267,7 +293,7 @@ public class CarMovement : MonoBehaviour
         Collider[] hitDetected = Physics.OverlapBox(transform.position + Vector3.right * GameManager.Instance.lineSpacing * lineDirection, new Vector3(1, 0.5f, 0.75f));
         foreach (Collider col in hitDetected) {
 
-            if (col.gameObject.tag == "Car")
+            if ((col.gameObject.tag == "Car") || (col.gameObject.tag == "Wall"))
             {
                 UnityEngine.Debug.Log("Collision detected in line!");
                 return false;

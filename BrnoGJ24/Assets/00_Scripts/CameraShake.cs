@@ -9,8 +9,8 @@ public class CameraShake : MonoBehaviour
     CinemachineBasicMultiChannelPerlin _cinemachineBasicMultiChannelPerlin;
 
     [Header("Camera shake")]
-    [SerializeField] float _maxAmplitude = 2f;
-    [SerializeField] float _maxFrequency = 2f;
+    [SerializeField] float _maxAmplitude = 5f;
+    [SerializeField] float _maxFrequency = 5f;
     [SerializeField] float _duration = 0.5f;
 
     private void Awake()

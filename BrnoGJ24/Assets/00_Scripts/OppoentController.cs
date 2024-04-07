@@ -27,9 +27,21 @@ public class OppoentController : MonoBehaviour
     private static float baseAcceleration = 4;
     private float acceleration = 0;
 
+    public OpponentGenerator carModel;
+
     //
     [SerializeField]
     private float skill = 0.9f;
+
+    [SerializeField] int linesCount = 4;
+    public int currentLine = 4;
+    bool isChangingLines = false;
+    bool haveToChange = false;
+    [SerializeField] float sideSpeed = 2;
+    
+    private float tmp = 0f;
+    private float lastVelocity = 0f;
+    [SerializeField] Transform visualTransform;
 
     // Start is called before the first frame update
     void Start()
@@ -37,10 +49,26 @@ public class OppoentController : MonoBehaviour
         
     }
 
+    private void LateUpdate(){
+        float xVelocity = tmp - transform.position.x;
+
+        lastVelocity = Mathf.Lerp(lastVelocity, xVelocity, 15f * Time.deltaTime);
+        visualTransform.rotation = Quaternion.Euler(0, lastVelocity * -150, 0);
+
+    }
+
     // Update is called once per frame
     void Update()
     {
         if (carCrashed) return;
+
+        
+        tmp = transform.position.x;
+
+        if(IsChangeNeeded()){
+            ChangeLine((Random.Range(0, 2) == 1));
+        }
+
         
         if (GameManager.Instance.gameState == GameManager.GameState.Race)
         {
@@ -51,16 +79,18 @@ public class OppoentController : MonoBehaviour
             ChangeGear();
             MoveForward();
         }
+
     }
 
-    private void OnCollisionEnter(Collision other)
+    private void OnTriggerEnter(Collider other)
     {
         if (other.gameObject.tag == "Wall")
         {
-            GetComponent<Rigidbody>().AddForce(0, 0, -currentSpeed);
+            //GetComponent<Rigidbody>().AddForce(0, 0, -currentSpeed);
             currentSpeed = 0;
             carCrashed = true;
             UnityEngine.Debug.Log("Car crashed!");
+            carModel.Explode();
         }
     }
 
@@ -107,17 +137,7 @@ public class OppoentController : MonoBehaviour
         }
     }
     //TODO START
-    private void CheckForObstacles()
-    {
-        Collider[] hitDetected = Physics.OverlapBox(transform.position + Vector3.forward * 10, new Vector3(0.5f, 0.5f, 20f));
-        foreach (Collider col in hitDetected)
-        {
-            if (col.gameObject.tag == "Wall")
-            {
-                UnityEngine.Debug.Log("Opponent: Collision detected in current line!");
-            }
-        }
-    }
+
 
     private bool IsLineClear(int lineDirection)
     {
@@ -125,13 +145,75 @@ public class OppoentController : MonoBehaviour
         foreach (Collider col in hitDetected)
         {
 
-            if (col.gameObject.tag == "Car")
+            if ((col.gameObject.tag == "Car") || (col.gameObject.tag == "Wall"))
             {
-                UnityEngine.Debug.Log("Opponent: Collision detected in line!");
+                //UnityEngine.Debug.Log("Opponent: Collision detected in line!");
                 return false;
             }
         }
         return true;
+    }
+
+    private bool IsChangeNeeded()
+    {
+        Collider[] hitDetected = Physics.OverlapBox(transform.position + Vector3.forward * 10 * GameManager.Instance.lineSpacing, new Vector3(1, 0.5f, 0.75f));
+        foreach (Collider col in hitDetected)
+        {
+
+            if ((col.gameObject.tag == "Car") || (col.gameObject.tag == "Wall"))
+            {
+                //UnityEngine.Debug.Log("Opponent: Collision detected in line!");
+                return true;
+            }
+        }
+        return false;
+    }
+    
+
+    private void ChangeLine(bool right)
+    {
+        if (right && !isChangingLines && (currentLine < linesCount) && IsLineClear(1))
+                {
+                    StartCoroutine(ChangeLineCoroutine(true));
+                }
+
+        else if (!right && !isChangingLines && (currentLine > 1) && IsLineClear(-1))
+        {
+            StartCoroutine(ChangeLineCoroutine(false));
+        }
+    }
+    
+    IEnumerator ChangeLineCoroutine(bool right)
+    {
+        float _distanceChanged = 0;
+        isChangingLines = true;
+
+        Vector3 direction;
+        if (right == true)
+        {
+            currentLine++;
+            direction = Vector3.right;
+        }
+
+        else
+        {
+            currentLine--;
+            direction = Vector3.left;
+        }
+        
+
+        while(_distanceChanged < GameManager.Instance.lineSpacing)
+        {
+            float _movement =  (currentSpeed/5f) * sideSpeed * Time.deltaTime;
+
+            _distanceChanged += _movement;
+            transform.Translate(direction * _movement);
+
+
+            yield return null;
+        }
+
+        isChangingLines = false;
     }
     //TODO END
 
