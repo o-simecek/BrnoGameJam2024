@@ -34,7 +34,8 @@ public class OppoentController : MonoBehaviour
     private float skill = 0.9f;
 
     [SerializeField] int linesCount = 4;
-    public int currentLine = 4;
+    [SerializeField]
+    public int currentLine = 3;
     bool isChangingLines = false;
     bool haveToChange = false;
     [SerializeField] float sideSpeed = 2;
@@ -65,8 +66,20 @@ public class OppoentController : MonoBehaviour
         
         tmp = transform.position.x;
 
+        
         if(IsChangeNeeded()){
-            ChangeLine((Random.Range(0, 2) == 1));
+            if (IsLineClear(-1) && IsLineClear(1))
+            {
+                ChangeLine((Random.Range(0, 2) == 1));
+            } else if (IsLineClear(-1))
+            {
+                ChangeLine(false);
+                Debug.Log("Changing Left!");
+            } else if (IsLineClear(1))
+            {
+                Debug.Log("Changing right!");
+                ChangeLine(true);
+            }
         }
 
         
@@ -81,7 +94,7 @@ public class OppoentController : MonoBehaviour
         }
 
     }
-
+    /*
     private void OnTriggerEnter(Collider other)
     {
         if (other.gameObject.tag == "Wall")
@@ -91,6 +104,24 @@ public class OppoentController : MonoBehaviour
             carCrashed = true;
             UnityEngine.Debug.Log("Car crashed!");
             carModel.Explode();
+        }
+    }*/
+
+    private void OnCollisionEnter(Collision other)
+    {
+        if (other.gameObject.tag == "Wall")
+        {
+            GetComponent<Rigidbody>().AddForce(0, 0, -currentSpeed);
+            currentSpeed = 0;
+            carCrashed = true;
+            UnityEngine.Debug.Log("Opponent crashed!");
+            carModel.Explode();
+        }
+        else if (other.gameObject.tag == "Car")
+        {
+            Debug.Log("Collision with other car!");
+            //GetComponent<Rigidbody>().AddForce(other.gameObject.transform.position - transform.position);
+            transform.Translate(new Vector3(0, 0, (transform.position.z - other.gameObject.transform.position.z) * 0.5f));
         }
     }
 
@@ -156,11 +187,11 @@ public class OppoentController : MonoBehaviour
 
     private bool IsChangeNeeded()
     {
-        Collider[] hitDetected = Physics.OverlapBox(transform.position + Vector3.forward * 10 * GameManager.Instance.lineSpacing, new Vector3(1, 0.5f, 0.75f));
+        Collider[] hitDetected = Physics.OverlapBox(transform.position + Vector3.forward * currentSpeed/5, new Vector3(1, 0.5f, 1.5f * currentSpeed / 15));
         foreach (Collider col in hitDetected)
         {
 
-            if ((col.gameObject.tag == "Car") || (col.gameObject.tag == "Wall"))
+            if (/*(col.gameObject.tag == "Car") || */(col.gameObject.tag == "Wall"))
             {
                 //UnityEngine.Debug.Log("Opponent: Collision detected in line!");
                 return true;

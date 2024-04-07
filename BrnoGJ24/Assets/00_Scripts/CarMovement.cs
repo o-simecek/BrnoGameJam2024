@@ -4,6 +4,7 @@ using UnityEngine;
 using TMPro;
 using System.Diagnostics;
 using UnityEngine.Rendering;
+using Debug = UnityEngine.Debug;
 
 public class CarMovement : MonoBehaviour
 {
@@ -37,17 +38,21 @@ public class CarMovement : MonoBehaviour
 
     //Line changing
     [SerializeField] int linesCount = 4;
-    public int currentLine = 3;
+    [SerializeField]
+    public int currentLine = 2;
     bool isChangingLines = false;
     [SerializeField] float sideSpeed = 2;
 
     RaycastHit m_Hit;
 
+    //UI
     [SerializeField]
     TextMeshProUGUI speedText;
     [SerializeField]
     TextMeshProUGUI RPMText;
     [SerializeField] Transform visualTransform;
+    [SerializeField]
+    TextMeshProUGUI shiftText;
 
     private void Awake()
     {
@@ -103,6 +108,7 @@ public class CarMovement : MonoBehaviour
 
             //RACE IS IN PROGRESS
             case GameManager.GameState.Race:
+                
                 UpdateRPM();
 
                 if (Input.GetKeyDown(KeyCode.UpArrow))
@@ -112,7 +118,8 @@ public class CarMovement : MonoBehaviour
 
                 else if (Input.GetKeyDown(KeyCode.DownArrow))
                 {
-                    GearChange(false);
+                    //GearChange(false);
+                    GetComponent<Rigidbody>().AddForce(0, 0, 10);
                 }
 
                 if (Input.GetKeyDown(KeyCode.RightArrow) && !isChangingLines && (currentLine < linesCount) && IsLineClear(1))
@@ -145,6 +152,11 @@ public class CarMovement : MonoBehaviour
             currentSpeed = 0;
             carCrashed = true;
             UnityEngine.Debug.Log("Car crashed!");
+            //TODO carModel explode
+        } else if (other.gameObject.tag == "Car") {
+            Debug.Log("Collision with other car!");
+            transform.Translate(new Vector3(0, 0, (transform.position.z - other.gameObject.transform.position.z) * 0.5f));
+            //GetComponent<Rigidbody>().AddForce((other.gameObject.transform.position - transform.position) * 100);
         }
     }
 
@@ -154,9 +166,10 @@ public class CarMovement : MonoBehaviour
     {
         if ((up && (currentGear < maxGear) && (currentRPM > 5000)) || (currentGear == 0))
         {
+            float bonusSpeed = CalculateBonusSpeed();
             if (currentGear != 0)
             {
-                currentSpeed += CalculateBonusSpeed();
+                currentSpeed += bonusSpeed;
             }
 
             if (currentGear == 0 && currentRPM > 9000)
@@ -265,32 +278,49 @@ public class CarMovement : MonoBehaviour
 
     private float CalculateBonusSpeed()
     {
+        StartCoroutine(ClearShiftText());
+
         List<float> bonus = new List<float> { -15, 0, -3, -6 };
         if (currentRPM > 9000)
         {
-            UnityEngine.Debug.Log("bad!");
+            //UnityEngine.Debug.Log("bad!");
+            shiftText.text = "BAD shift!";
+            shiftText.color = Color.red;
             return bonus[0];
         }
         else if (currentRPM > 8800)
         {
-            UnityEngine.Debug.Log("perfect!");
+            //UnityEngine.Debug.Log("perfect!");
+            shiftText.text = "PERFECT shift!";
+            shiftText.color = Color.blue;
             return bonus[1];
         }
         else if (currentRPM > 8000)
         {
-            UnityEngine.Debug.Log("good!");
+            //UnityEngine.Debug.Log("good!");
+            shiftText.text = "GOOD shift";
+            shiftText.color = Color.green;
             return bonus[2];
         }
         else
         {
-            UnityEngine.Debug.Log("ok");
+            //UnityEngine.Debug.Log("ok");
+            shiftText.text = "OK shift";
+            shiftText.color = Color.white;
             return bonus[3];
         }
     }
 
+    IEnumerator ClearShiftText()
+    {
+        yield return new WaitForSeconds(1);
+        shiftText.text = "";
+        shiftText.color = Color.white;
+    }
+
     //-1 for left, +1 for right
     private bool IsLineClear(int lineDirection) {
-        Collider[] hitDetected = Physics.OverlapBox(transform.position + Vector3.right * GameManager.Instance.lineSpacing * lineDirection, new Vector3(1, 0.5f, 0.75f));
+        Collider[] hitDetected = Physics.OverlapBox(transform.position + Vector3.right * GameManager.Instance.lineSpacing * lineDirection, new Vector3(1, 0.5f, 1.5f));
         foreach (Collider col in hitDetected) {
 
             if ((col.gameObject.tag == "Car") || (col.gameObject.tag == "Wall"))
