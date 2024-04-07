@@ -2,12 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
-using System.Diagnostics;
-using UnityEngine.Rendering;
+
 using Debug = UnityEngine.Debug;
 using UnityEngine.SceneManagement;
-using static UnityEditor.Progress;
-using System;
+
 
 public class CarMovement : MonoBehaviour
 {

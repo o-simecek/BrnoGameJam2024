@@ -217,6 +217,7 @@ MonoBehaviour:
   RPMText: {fileID: 0}
   visualTransform: {fileID: 444438049415217360}
   shiftText: {fileID: 0}
+  wonText: {fileID: 0}
 --- !u!54 &2012320367025671884
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -310,11 +311,21 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3156805999267565860, guid: 8bffcd5383a32434fb43c726132ccdb4,
+        type: 3}
+      propertyPath: carMovement
+      value: 
+      objectReference: {fileID: 2012320367025671887}
     - target: {fileID: 3273788226237588461, guid: 8bffcd5383a32434fb43c726132ccdb4,
         type: 3}
       propertyPath: m_UseGravity
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 3508947794067030275, guid: 8bffcd5383a32434fb43c726132ccdb4,
+        type: 3}
+      propertyPath: carMovement
+      value: 
+      objectReference: {fileID: 2012320367025671887}
     - target: {fileID: 6292694630335241266, guid: 8bffcd5383a32434fb43c726132ccdb4,
         type: 3}
       propertyPath: m_UseGravity
@@ -330,11 +341,21 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8239164456769799767, guid: 8bffcd5383a32434fb43c726132ccdb4,
+        type: 3}
+      propertyPath: carMovement
+      value: 
+      objectReference: {fileID: 2012320367025671887}
     - target: {fileID: 8455664011253048086, guid: 8bffcd5383a32434fb43c726132ccdb4,
         type: 3}
       propertyPath: m_UseGravity
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 8903373162694446303, guid: 8bffcd5383a32434fb43c726132ccdb4,
+        type: 3}
+      propertyPath: carMovement
+      value: 
+      objectReference: {fileID: 2012320367025671887}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 8bffcd5383a32434fb43c726132ccdb4, type: 3}
 --- !u!4 &444438049415217360 stripped

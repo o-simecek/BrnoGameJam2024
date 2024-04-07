@@ -1,10 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
-using UnityEditor.SearchService;
-using UnityEditorInternal;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using TMPro;
+
 
 public class GameManager : MonoBehaviour
 {
