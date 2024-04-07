@@ -110,6 +110,7 @@ public class CarMovement : MonoBehaviour
             case GameManager.GameState.Race:
                 
                 UpdateRPM();
+                CheckFinish();
 
                 if (Input.GetKeyDown(KeyCode.UpArrow))
                 {
@@ -330,5 +331,18 @@ public class CarMovement : MonoBehaviour
             }
         }
         return true;
+    }
+
+    private void CheckFinish()
+    {
+        if (transform.position.z > GameManager.Instance.finishZ)
+        {
+            if (GameManager.Instance.whowon == GameManager.WhoWon.nobody)
+            {
+                GameManager.Instance.whowon = GameManager.WhoWon.player;
+                Debug.Log("Player won!");
+                GameManager.Instance.gameState = GameManager.GameState.AfterRace;
+            }
+        }
     }
 }

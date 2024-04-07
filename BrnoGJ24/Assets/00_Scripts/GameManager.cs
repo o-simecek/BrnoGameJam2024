@@ -11,6 +11,8 @@ public class GameManager : MonoBehaviour
 
     public float lineSpacing = 2;
 
+    public float finishZ = 681.7f;
+
     public enum GameState
     {
         Menu,
@@ -18,6 +20,15 @@ public class GameManager : MonoBehaviour
         Race,
         AfterRace
     }
+
+    public enum WhoWon
+    {
+        player,
+        opponent,
+        nobody
+    }
+
+    public WhoWon whowon = WhoWon.nobody;
 
     public GameState gameState = GameState.BeforeRace;
     public static GameManager Instance { get { 
@@ -28,9 +39,10 @@ public class GameManager : MonoBehaviour
         _instance = this;
     }
 
+
     // Update is called once per frame
     void Update()
     {
-        
+
     }
 }

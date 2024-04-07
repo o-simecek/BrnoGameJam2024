@@ -91,7 +91,11 @@ public class OppoentController : MonoBehaviour
             currentSpeed += (acceleration + (acceleration * 0.25f) * (maxSpeed - currentSpeed) / maxSpeed) * Time.deltaTime;
             ChangeGear();
             MoveForward();
-        }
+
+            CheckFinish();
+                
+            }
+        
 
     }
     /*
@@ -247,6 +251,17 @@ public class OppoentController : MonoBehaviour
         isChangingLines = false;
     }
     //TODO END
-
+    private void CheckFinish()
+    {
+        if (transform.position.z > GameManager.Instance.finishZ)
+        {
+            if (GameManager.Instance.whowon == GameManager.WhoWon.nobody)
+            {
+                GameManager.Instance.whowon = GameManager.WhoWon.opponent;
+                Debug.Log("Player lost!");
+                GameManager.Instance.gameState = GameManager.GameState.AfterRace;
+            }
+        }
+    }
 
 }
