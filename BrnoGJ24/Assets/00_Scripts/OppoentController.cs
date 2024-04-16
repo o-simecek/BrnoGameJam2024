@@ -16,6 +16,9 @@ public class OppoentController : MonoBehaviour
     //Gears
     [SerializeField] int maxGear = 5;
     int currentGear = 1;
+    private float destinationX = 0f;
+    private float currentX = 0f;
+    private float startX = 0f;
 
     //RPM
     private float currentRPM = 4000f;
@@ -33,40 +36,59 @@ public class OppoentController : MonoBehaviour
     //
     [SerializeField]
     private float skill = 0.9f;
+    private AudioSource audioSource;
 
     [SerializeField] int linesCount = 4;
     [SerializeField]
     public int currentLine = 3;
-    bool isChangingLines = false;
-    bool haveToChange = false;
+    private bool isChangingLines = false;
+    private bool brakes = false;
     [SerializeField] float sideSpeed = 2;
     
     private float tmp = 0f;
     private float lastVelocity = 0f;
     [SerializeField] Transform visualTransform;
+    public AudioClip brakeSound;
+    public AudioSource brakeSource;
 
     // Start is called before the first frame update
     void Start()
     {
+        destinationX = transform.position.x;
+        currentX = transform.position.x;
+        startX = transform.position.x;
+        audioSource = GetComponent<AudioSource>();
         
     }
 
     private void LateUpdate(){
-        float xVelocity = tmp - transform.position.x;
-
-        lastVelocity = Mathf.Lerp(lastVelocity, xVelocity, 15f * Time.deltaTime);
-        visualTransform.rotation = Quaternion.Euler(0, lastVelocity * -150, 0);
 
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (carCrashed) return;
+        currentX = Mathf.SmoothStep(currentX, destinationX, (8.5f + (currentSpeed/8.5f)) * Time.deltaTime);
 
-        
-        tmp = transform.position.x;
+        if(Mathf.Abs(destinationX - currentX) > GameManager.Instance.lineSpacing/2f){
+            visualTransform.rotation = Quaternion.Euler(currentRPM/50000 * Mathf.PerlinNoise(Time.time * 35, 0), (startX - currentX) * -3.5f, currentRPM/50000 * Mathf.PerlinNoise(Time.time * 25, 0));
+        } else{
+            visualTransform.rotation = Quaternion.Euler(currentRPM/50000 * Mathf.PerlinNoise(Time.time * 35, 0), (destinationX - currentX) * 3.5f, currentRPM/50000 * Mathf.PerlinNoise(Time.time * 25, 0));
+        }
 
+        audioSource.pitch = 0.5f + currentRPM/10000f;
+
+        if (Mathf.Abs(destinationX - currentX) < 0.1f){
+            isChangingLines = false;
+            startX = destinationX;
+        }
+        if (carCrashed){
+            audioSource.volume = 0;
+            return;
+        }
+            
+
+        transform.position = new Vector3 (currentX, transform.position.y, transform.position.z + currentSpeed * Time.deltaTime); 
         
         if(IsChangeNeeded()){
             if (IsLineClear(-1) && IsLineClear(1))
@@ -86,16 +108,23 @@ public class OppoentController : MonoBehaviour
         
         if (GameManager.Instance.gameState == GameManager.GameState.Race)
         {
-            UpdateRPM();
-            CalculateAcceleration();
-            acceleration *= skill;
-            currentSpeed += (acceleration + (acceleration * 0.25f) * (maxSpeed - currentSpeed) / maxSpeed) * Time.deltaTime;
-            ChangeGear();
-            MoveForward();
-
+            if(!brakes){
+                UpdateRPM();
+                CalculateAcceleration();
+                acceleration *= skill;
+                currentSpeed += (acceleration + (acceleration * 0.25f) * (maxSpeed - currentSpeed) / maxSpeed) * Time.deltaTime;
+                ChangeGear();
+                MoveForward();
+            } else{
+                if(currentSpeed > 0){
+                        currentSpeed -= Time.deltaTime*85;
+                    } else {
+                        currentSpeed = 0;
+                }
+            }
             //CheckFinish();
                 
-            }
+        }
         
 
     }
@@ -116,7 +145,8 @@ public class OppoentController : MonoBehaviour
     {
         if (other.gameObject.tag == "Wall")
         {
-            GetComponent<Rigidbody>().AddForce(0, 0, -currentSpeed);
+            Destroy(GetComponent<Rigidbody>());
+            //GetComponent<Rigidbody>().AddForce(0, 0, -currentSpeed);
             currentSpeed = 0;
             carCrashed = true;
             UnityEngine.Debug.Log("Opponent crashed!");
@@ -129,9 +159,12 @@ public class OppoentController : MonoBehaviour
             transform.Translate(new Vector3(0, 0, (transform.position.z - other.gameObject.transform.position.z) * 0.5f));
         }
         else if (other.gameObject.tag == "Finish"){
-                GameManager.Instance.whowon = GameManager.WhoWon.opponent;
-                Debug.Log("Player lost!");
-                GameManager.Instance.gameState = GameManager.GameState.AfterRace;
+                StartBraking();
+                if(GameManager.Instance.whowon == GameManager.WhoWon.nobody){
+                    GameManager.Instance.whowon = GameManager.WhoWon.opponent;
+                    Debug.Log("Player lost!");
+                    //GameManager.Instance.gameState = GameManager.GameState.AfterRace;
+                }
         }
     }
 
@@ -142,7 +175,7 @@ public class OppoentController : MonoBehaviour
         else if (currentSpeed < 0)
             currentSpeed = 0;
 
-        gameObject.transform.Translate(Vector3.forward * currentSpeed * Time.deltaTime);
+        //gameObject.transform.Translate(Vector3.forward * currentSpeed * Time.deltaTime);
     }
     private void CalculateAcceleration()
     {
@@ -159,6 +192,13 @@ public class OppoentController : MonoBehaviour
         }
 
         acceleration = ratio * baseAcceleration;
+    }
+    public void StartBraking()
+    {
+        if(!brakes){
+            brakes = true;
+            brakeSource.PlayOneShot(brakeSound);
+        }
     }
 
     private void UpdateRPM()
@@ -197,7 +237,8 @@ public class OppoentController : MonoBehaviour
 
     private bool IsChangeNeeded()
     {
-        Collider[] hitDetected = Physics.OverlapBox(transform.position + Vector3.forward * currentSpeed/5, new Vector3(1, 0.5f, 1.5f * currentSpeed / 15));
+        //Collider[] hitDetected = Physics.OverlapBox(transform.position + Vector3.forward * currentSpeed/5, new Vector3(1, 0.5f, 1.5f * currentSpeed / 15));
+        Collider[] hitDetected = Physics.OverlapBox(transform.position + Vector3.forward * currentSpeed/5, new Vector3(1, 0.5f, 1.5f * currentSpeed / 5));
         foreach (Collider col in hitDetected)
         {
 
@@ -214,13 +255,20 @@ public class OppoentController : MonoBehaviour
     private void ChangeLine(bool right)
     {
         if (right && !isChangingLines && (currentLine < linesCount) && IsLineClear(1))
-                {
-                    StartCoroutine(ChangeLineCoroutine(true));
-                }
+        {
+            //StartCoroutine(ChangeLineCoroutine(true));
+            isChangingLines = true;
+            currentLine++;
+            destinationX += GameManager.Instance.lineSpacing;
+        }
 
         else if (!right && !isChangingLines && (currentLine > 1) && IsLineClear(-1))
         {
-            StartCoroutine(ChangeLineCoroutine(false));
+            isChangingLines = true;
+            //StartCoroutine(ChangeLineCoroutine(false));
+            currentLine--;
+            destinationX -= GameManager.Instance.lineSpacing;
+            
         }
     }
     

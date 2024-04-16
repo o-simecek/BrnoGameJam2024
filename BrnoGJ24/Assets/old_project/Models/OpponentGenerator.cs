@@ -14,6 +14,7 @@ public class OpponentGenerator : MonoBehaviour
     public GameObject[] rims;
     public GameObject[] exhausts;
     public GameObject[] hoods;
+    public GameObject[] decals;
     public Material[] paints;
     public GameObject[] paintableParts;
     public GameObject[] outlierParts;
@@ -21,14 +22,17 @@ public class OpponentGenerator : MonoBehaviour
     public GameObject disableOnCrash;
 
     public bool isEnemy = true;
+    public bool isBoss = false;
 
-    public int[] carHash = new int[8];
+    public int[] carHash = new int[9];
     private GameObject[][] partArray;
 
 
     private Material[] _materials;
     private Renderer _renderer;
     private Material paint;
+    public AudioClip crashSound;
+    private AudioSource audioSource;
 
     private void Awake()
     {
@@ -37,21 +41,20 @@ public class OpponentGenerator : MonoBehaviour
 
     void Start() {
 
-        partArray = new GameObject[][]{spoilers, frontBumpers, hoods, rearBumpers, skirts, exhausts, rims};
+        audioSource = GetComponent<AudioSource>();
 
-
-
+        partArray = new GameObject[][]{spoilers, frontBumpers, hoods, rearBumpers, skirts, exhausts, rims, decals};
 
             if (isEnemy){
             Randomize();
 
+        }else if (isBoss){
+            Activation();
         } else{
             carHash = GameManager.Instance.carHash;
 
             Activation();
         }
-
-        
 
     }
 
@@ -69,15 +72,16 @@ public class OpponentGenerator : MonoBehaviour
         
         carHash[0] = Random.Range(0, paints.Length);
 
-        for (int i = 0; i < partArray.Length - 1; i++){
+        for (int i = 0; i < partArray.Length - 2; i++){
             carHash[i + 1] = Random.Range(0, partArray[i].Length);
         }
 
         carHash[7] = Random.Range(0, 4);
+        carHash[8] = Random.Range(0, partArray[7].Length);
         Activation();
     }
 
-    void Activation(){
+    public void Activation(){
 
         foreach (GameObject r in rims){
             r.transform.GetChild(carHash[7]).gameObject.SetActive(true);
@@ -116,46 +120,81 @@ public class OpponentGenerator : MonoBehaviour
         }
         
         exhausts[carHash[6]].SetActive(true);
+        
+        decals[carHash[8]].SetActive(true);
     }
 
-    void Deactivation(){
-        for (int i = 0; i < partArray.Length - 1; i++){
+    public void Deactivation(){
+        for (int i = 0; i < partArray.Length - 2; i++){
             partArray[i][carHash[i+1]].SetActive(false);
         }
         foreach (GameObject r in rims){
             r.transform.GetChild(carHash[7]).gameObject.SetActive(false);
         }
-
+        
+        decals[carHash[8]].SetActive(false);
 
     }
 
     public void Explode(){
+        audioSource.PlayOneShot(crashSound, 1f);
         disableOnCrash.SetActive(false);
-        foreach (GameObject[] gib in partArray)
+        for (int i = 0; i < partArray.Length - 1; i++)
         {
-        
-            foreach (GameObject child in gib)
-            {
-                child.AddComponent(typeof(BoxCollider));
-                Rigidbody rb = child.AddComponent<Rigidbody>();
+            if(i != 4){
+                BoxCollider _collider = partArray[i][carHash[i + 1]].AddComponent<BoxCollider>();
+                _collider.size *= 0.5f;
+                Rigidbody rb = partArray[i][carHash[i + 1]].AddComponent<Rigidbody>();
                 rb.mass = 1;
-                child.transform.GetComponent<Rigidbody>()?.AddForce(Random.insideUnitSphere.normalized*explosionForce, ForceMode.Impulse);
-            }
+                rb.drag = 1f;
+                rb.angularDrag = 0.1f;
+                partArray[i][carHash[i + 1]].transform.GetComponent<Rigidbody>()?.AddForce(Random.insideUnitSphere.normalized * explosionForce + Vector3.up * explosionForce, ForceMode.Impulse);
+            } else{
+                partArray[i][carHash[i + 1]].transform.GetChild(0).gameObject.AddComponent<BoxCollider>();
+                Rigidbody childRb = partArray[i][carHash[i + 1]].transform.GetChild(0).gameObject.AddComponent<Rigidbody>();
+                childRb.mass = 1;
+                childRb.drag = 1f;
+                childRb.angularDrag = 0.1f;
+                partArray[i][carHash[i + 1]].AddComponent<BoxCollider>();
+                Rigidbody rb = partArray[i][carHash[i + 1]].AddComponent<Rigidbody>();
+                rb.mass = 1;
+                rb.drag = 1f;
+                rb.angularDrag = 0.1f;
+                //PartActivate(skirts[carHash[5]].transform.GetChild(0).gameObject, 0);
+                //PartActivate(skirts[carHash[5]], 0);
 
+            } 
         }
+        
+
+        foreach (GameObject r in rims){
+            BoxCollider _collider = r.transform.GetChild(carHash[7]).gameObject.AddComponent<BoxCollider>();
+            _collider.size *= 0.5f;
+            Rigidbody rb = r.transform.GetChild(carHash[7]).gameObject.AddComponent<Rigidbody>();
+            rb.mass = 1;
+            rb.drag = 1f;
+            rb.angularDrag = 0.1f;
+            r.transform.GetChild(carHash[7]).gameObject.transform.GetComponent<Rigidbody>()?.AddForce(Random.insideUnitSphere.normalized * explosionForce + Vector3.up * explosionForce, ForceMode.Impulse);
+        }
+
         foreach (GameObject child in paintableParts)
         {
-            child.AddComponent(typeof(BoxCollider));
+            BoxCollider _collider = child.AddComponent<BoxCollider>();
+            _collider.size *= 0.5f;
             Rigidbody rb = child.AddComponent<Rigidbody>();
             rb.mass = 1;
-            child.transform.GetComponent<Rigidbody>()?.AddForce(Random.insideUnitSphere.normalized*explosionForce, ForceMode.Impulse);
+            rb.drag = 1f;
+            rb.angularDrag = 0.001f;
+            child.transform.GetComponent<Rigidbody>()?.AddForce(Random.insideUnitSphere.normalized * explosionForce + Vector3.up * explosionForce, ForceMode.Impulse);
         }
-        foreach (GameObject child in outlierParts)
-        {
-            child.AddComponent(typeof(BoxCollider));
+        foreach (GameObject child in outlierParts){
+            BoxCollider _collider = child.AddComponent<BoxCollider>();
+            _collider.size *= 0.5f;
             Rigidbody rb = child.AddComponent<Rigidbody>();
             rb.mass = 1;
-            child.transform.GetComponent<Rigidbody>()?.AddForce(Random.insideUnitSphere.normalized*explosionForce, ForceMode.Impulse);
+            rb.drag = 1f;
+            rb.angularDrag = 0.001f;
+            child.transform.GetComponent<Rigidbody>()?.AddForce(Random.insideUnitSphere.normalized * explosionForce + Vector3.up * explosionForce, ForceMode.Impulse);
         }
 
     }
@@ -184,6 +223,8 @@ public class OpponentGenerator : MonoBehaviour
 
         } else if (i == 5){
             exhausts[carHash[6]].SetActive(true);
+        } else if (i == 7){
+            decals[carHash[8]].SetActive(true);
         } else if (i == 4){
             PartActivate(skirts[carHash[5]], 0);
             PartActivate(skirts[carHash[5]].transform.GetChild(0).gameObject, 0);

@@ -47,6 +47,7 @@ MonoBehaviour:
   isRaceInProgress: 0
   lineSpacing: 2
   finishZ: 681.7
+  carHash: 000000000000000000000000000000000000000000000000000000000000000000000000
   whowon: 2
   gameState: 1
   clearedLevels: []
